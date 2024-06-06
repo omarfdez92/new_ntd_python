@@ -4,3 +4,8 @@
 
 [dev]
     command = "cactus serve"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
