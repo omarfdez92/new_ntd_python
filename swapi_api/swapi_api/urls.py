@@ -17,12 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from swapi_planets.views import PlanetViewSet
+from swapi_planets.views import PlanetViewSet, index
 
 router = routers.DefaultRouter()
 router.register(r'planets', PlanetViewSet)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('', index, name='index'),
     path('', include(router.urls)),
 ]

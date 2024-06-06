@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Star Wars Planets</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    </head>
+    <body>
+        <h1 class="title">Star Wars Planets</h1>
+
+        <section class="section">
+            <div class="container">
+                <div id="planet-list">
+                    <table class="table is-striped">
+                        <thead class="has-background-link">
+                            <tr>
+                                <th><abbr title="Name">Name</abbr></th>
+                                <th><abbr title="Population">Population</abbr></th>
+                                <th><abbr title="Terrains">Terrains</abbr></th>
+                                <th><abbr title="Climates">climates</abbr></th>
+                                <th><abbr title="EditButton">Edit</abbr></th>
+                                <th><abbr title="DeleteButton">Delete</abbr></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for planet in planets %}
+                            <tr>
+                                <th>{{planet.name}}</th>
+                                <td>{{planet.population}}</td>
+                                <td>{{planet.terrains}}</td>
+                                <td>{{planet.climates}}</td>
+                                <td>
+                                    <button class="edit-button button is-info" data-planet-id={{planet.id}}>Edit</button>
+                                </td>
+                                <td>
+                                    <button class="delete-button button is-danger" data-planet-id={{planet.id}}>Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <script>
+                        // Buttons listeners
+                        document.addEventListener('click', (event) => {                
+                            if (event.target.classList.contains('edit-button')) {
+                                const planetId = event.target.dataset.planetId;
+                                fetch(`/planets/${planetId}/`)
+                                    .then(response => response.json())
+                                    .then(planetData => {
+                                        document.getElementById('edit-planet-id').value = planetData.id;
+                                        document.getElementById('edit-name').value = planetData.name;
+                                        document.getElementById('edit-population').value = planetData.population;
+                                        document.getElementById('edit-terrains').value = planetData.terrains;
+                                        document.getElementById('edit-climates').value = planetData.climates;
+                
+                                        document.getElementById('edit-modal').classList.add('is-active');
+                                    });
+                            }
+                        });
+                
+                        const editForm = document.getElementById('edit-form');
+                        editForm.addEventListener('submit', (event) => {
+                            event.preventDefault();
+                            const formData = new FormData(editForm);
+                            const planetId = formData.get('id');
+                
+                            fetch(`/planets/${planetId}/`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: JSON.stringify(Object.fromEntries(formData))
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    // Update the planet row 
+                                    const planetRow = event.target.closest('tr');
+                                    planetRow.cells[0].textContent = formData.get('name');
+                                    planetRow.cells[1].textContent = formData.get('population');
+                                    planetRow.cells[2].textContent = formData.get('terrains');
+                                    planetRow.cells[3].textContent = formData.get('climates');
+                                    
+                                    document.getElementById('edit-modal').classList.remove('is-active');
+                                } else {
+                                    alert("Error updating planet.");
+                                }
+                            });
+                        });
+                
+                        document.querySelector('.modal-close').addEventListener('click', () => {
+                            document.getElementById('edit-modal').classList.remove('is-active');
+                        });
+
+                    </script>
+                </div>
+            </div>
+        </section>
+
+    </body>
+</html>
