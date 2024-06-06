@@ -1,0 +1,6 @@
+[build]
+    command = "cactus build"
+    publish = "_site"
+
+[dev]
+    command = "cactus serve"
